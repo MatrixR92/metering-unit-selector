@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Metering Unit Selector</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { width: 100%; overflow-x: hidden; margin: 0; font-family: "Myriad Pro", sans-serif; }
+    body { background-color: #2c2c2c; color: #f1f1f1; display: flex; flex-direction: column; align-items: center; overflow-x: hidden;}
+
+    header { text-align: center; padding: 20px 20px 40px; position: relative; width:100%; max-width:900px; }
+    header img.logo { max-width: 150px; margin-bottom: 20px; display:block; margin-left:auto; margin-right:auto; }
+    h1 { font-size: 2rem; margin: 10px 0; font-weight: bold; text-align:center; }
+
+    /* pulsante home in alto a destra */
+    .home-icon { position:absolute; top:18px; right:18px; cursor:pointer; width:36px; height:36px; display:flex; align-items:center; justify-content:center; }
+    .home-icon img { width:100%; height:auto; }
+
+	.lang-icon { position:absolute; top:18px; left:18px; cursor:pointer; width:34px; height:34px; display:flex; align-items:center; justify-content:center; }
+	.lang-icon img { width:100%; height:auto; }
+
+	.lang-menu { position:absolute; top:60px; left:18px; background:#3a3a3a; border-radius:12px; overflow:hidden; display:none; flex-direction:column; min-width:120px; box-shadow:0 4px 10px rgba(0,0,0,0.3);}
+	.lang-menu div { padding:8px 12px; display:flex; align-items:center; gap:8px; cursor:pointer; }
+	.lang-menu div:hover { background:#4a4a4a; }
+	.lang-menu img { width:24px; height:auto; }
+
+    .step { display: none; width: 100%; max-width: 900px; padding: 0 20px 20px; }
+    .step.active { display: block; }
+
+    .grid { display: grid; gap: 15px; }
+    .machines { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    .machines .card img { max-width: 200px; margin-bottom: 8px; }
+
+    .seeds { grid-template-columns: repeat(auto-fill, 120px); justify-content: center; gap: 15px; }
+    .seeds .card { width: 120px; height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; }
+    .seeds .card img { max-width: 70px; margin-bottom: 6px; }
+    .seeds .card p { font-size: 0.95rem; margin: 0; text-align: center; word-break:break-word; }
+
+    .card { background: #3a3a3a; border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; }
+    .card:hover { background: #4a4a4a; }
+    .card.selected { border: 2px solid #FCC133; }
+
+    .buttons { display: flex; justify-content: space-between; margin-top: 20px; gap:10px; }
+    .buttons.center { flex-direction: column; align-items: center; }
+	
+	.buttons.sticky { position: sticky; bottom: 10px; background: #2c2c2c; padding: 10px 0; display: flex; justify-content: space-between; gap: 10px; z-index: 10; }
+	.buttons.sticky button { flex: 1; }
+	
+    .home-buttons { display:flex; flex-direction:column; gap:16px; margin-top:18px; }
+    .home-buttons button { background:#FCC133; color:#000; border:none; padding:18px; border-radius:12px; font-size:1.1rem; cursor:pointer; height:200px; width:100%; max-width:420px; }
+    .home-buttons button:hover{background:#e0a800;}
+
+    button { background: #FCC133; color: #000; border: none; padding: 12px 20px; border-radius: 8px; font-size: 1.1rem; cursor: pointer; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button:hover:enabled { background: #e0a800; }
+
+    .rocchetto { display: flex; align-items: center; background: #3a3a3a; border-radius: 12px; padding: 15px; }
+    .rocchetto img { width: 120px; height: auto; }
+    .rocchetto-info { display: flex; align-items: center; gap: 12px; }
+    .volume-box { display: inline-block; background: #fff; color: #2c2c2c; padding: 8px 15px; border-radius: 10px; }
+    .volume-value { font-size: 2rem; font-weight: bold; }
+    .volume-unit { font-size: 1.4rem; margin-left: 4px; }
+    .code { font-size: 1.2rem; color: #fff; }
+
+	.rocchetto-card img { max-width: 120px; margin-bottom: 10px; }
+	.rocchetto-card p { font-size: 1.2rem; font-weight: bold;  margin: 0; }
+
+	#result {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+#result .rocchetto {
+  display: flex;
+  flex-direction: column; /* verticalizza contenuto */
+  align-items: center;
+  padding: 10px;
+  background: #3a3a3a;
+  border-radius: 12px;
+  text-align: center;
+}
+
+#result .rocchetto img {
+  height: auto;
+  margin-bottom: 18px;
+}
+
+#result .rocchetto .rocchetto-info {
+  display: flex;
+  flex-direction: column; /* volume e codice in colonna */
+  align-items: center;
+  gap: 18px;
+}
+
+    input[type="text"] { background:#ffffff10; color:#fff; border:none; outline:none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="img/logo.svg" alt="Logo" class="logo">
+    <h1>METERING UNIT SELECTOR</h1>
+<div class="lang-icon" title="Cambia lingua" onclick="toggleLangMenu()">
+  <img src="img/it.png" alt="Lingua" id="currentLang">
+</div>
+<div class="lang-menu" id="langMenu">
+  <div onclick="setLang('it')"><img src="img/it.png" alt="Italiano"> Italiano</div>
+  <div onclick="setLang('en')"><img src="img/en.png" alt="English"> English</div>
+  <div onclick="setLang('fr')"><img src="img/fr.png" alt="Français"> Français</div>
+</div>	
+	<div class="home-icon" title="Home" onclick="goHome()" style="display:none">
+		<img src="img/home.svg" alt="Home">
+	</div>
+	
+  </header>
+
+  <!-- HOME -->
+  <div class="step active" id="home">
+    <h2 data-i18n="homeTitle" style="text-align:center;">Benvenuto nel Metering Unit Selector</h2>
+    <div class="home-buttons" style="display:flex;align-items:center;justify-content:center;">
+      <button onclick="nextStep('step1')">
+        <!-- icona la carichi tu nella cartella -->
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <img src="img/trova_rocchetto.svg" alt="" style="height:80px;margin-bottom:8px">
+          <span data-i18n="trovaRocchetto">Trova Rocchetto</span>
+        </div>
+      </button>
+
+      <button onclick="nextStep('stepCodice')">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <img src="img/cerca_codice.svg" alt="" style="height:100px;margin-bottom:8px">
+          <span data-i18n="cercaCodice">Cerca per Codice Rocchetto</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP Codice (lista rocchetti) -->
+  <div class="step" id="stepCodice">
+    <h2 data-i18n="cercaCodice">Cerca per Codice Rocchetto</h2>
+    <input type="text" id="searchRocchetto" placeholder="Cerca codice..." onkeyup="filterRocchetto()" style="width:100%;padding:10px;border-radius:8px;border:none;margin-bottom:15px;">
+    <div class="grid rocchetti seeds" id="rocchettoGrid"></div>
+
+  </div>
+
+  <!-- STEP Macchina -->
+  <div class="step" id="step1">
+    <h2 data-i18n="stepMacchina">Seleziona la tua Macchina</h2>
+    <div class="grid machines" id="machinesGrid">
+      <div class="card" onclick="selectItem('machine','m1', this)"><img src="img/JETM_RMT_1.png" alt="JET-M"><p>JET-M</p></div>
+      <div class="card" onclick="selectItem('machine','m2', this)"><img src="img/JETX_RTEK_1.png" alt="JET-X"><p>JET-X</p></div>
+      <div class="card" onclick="selectItem('machine','m3', this)"><img src="img/PRO1.png" alt="ASPRO"><p>ASPRO</p></div>
+      <div class="card" onclick="selectItem('machine','m4', this)"><img src="img/ASMAX_V2_1.png" alt="ASMAX"><p>ASMAX</p></div>
+      <div class="card" onclick="selectItem('machine','m5', this)"><img src="img/AB3_2400_H1.800.png" alt="AIRBOOST"><p>AIRBOOST</p></div>
+    </div>
+
+    <div class="buttons sticky" >
+
+      <button data-i18n="btnAvanti" onclick="nextStep('step2')" id="btnStep1" disabled>Avanti</button>
+    </div>
+  </div>
+
+  <!-- STEP Seme -->
+  <div class="step" id="step2">
+    <h2 data-i18n="stepSeme">Seleziona il Seme</h2>
+    <input type="text" id="searchSeed" placeholder="Cerca seme..." onkeyup="filterSeeds()" style="width:100%;padding:10px;border-radius:8px;border:none;margin-bottom:15px;">
+    <div class="grid seeds" id="seedGrid">
+      <div class="card" data-seed="avena" onclick="selectItem('seed','avena', this)"><img src="img/avena.svg" alt="Avena"><p>Avena</p></div>
+      <div class="card" data-seed="colza" onclick="selectItem('seed','colza', this)"><img src="img/colza.svg" alt="Colza"><p>Colza</p></div>
+      <div class="card" data-seed="cumino" onclick="selectItem('seed','cumino', this)"><img src="img/cumino.svg" alt="Cumino"><p>Cumino</p></div>
+      <div class="card" data-seed="erba_medica" onclick="selectItem('seed','erba_medica', this)"><img src="img/erba_medica.svg" alt="Erba medica"><p>Erba medica</p></div>
+      <div class="card" data-seed="fagioli" onclick="selectItem('seed','fagioli', this)"><img src="img/fagioli.svg" alt="Fagioli"><p>Fagioli</p></div>
+      <div class="card" data-seed="farro" onclick="selectItem('seed','farro', this)"><img src="img/farro.svg" alt="Farro"><p>Farro</p></div>
+      <div class="card" data-seed="favino" onclick="selectItem('seed','favino', this)"><img src="img/favino.svg" alt="Favino"><p>Favino</p></div>
+      <div class="card" data-seed="frumento" onclick="selectItem('seed','frumento', this)"><img src="img/frumento.svg" alt="Frumento"><p>Frumento</p></div>
+      <div class="card" data-seed="grano_saraceno" onclick="selectItem('seed','grano_saraceno', this)"><img src="img/grano_saraceno.svg" alt="Grano saraceno"><p>Grano saraceno</p></div>
+      <div class="card" data-seed="lino" onclick="selectItem('seed','lino', this)"><img src="img/lino.svg" alt="Lino"><p>Lino</p></div>
+      <div class="card" data-seed="loietto" onclick="selectItem('seed','loietto', this)"><img src="img/loietto.svg" alt="Loietto"><p>Loietto</p></div>
+      <div class="card" data-seed="lupini" onclick="selectItem('seed','lupini', this)"><img src="img/lupini.svg" alt="Lupini"><p>Lupini</p></div>
+      <div class="card" data-seed="miglio" onclick="selectItem('seed','miglio', this)"><img src="img/miglio.svg" alt="Miglio"><p>Miglio</p></div>
+      <div class="card" data-seed="orzo" onclick="selectItem('seed','orzo', this)"><img src="img/orzo.svg" alt="Orzo"><p>Orzo</p></div>
+      <div class="card" data-seed="papavero" onclick="selectItem('seed','papavero', this)"><img src="img/papavero.svg" alt="Papavero"><p>Papavero</p></div>
+      <div class="card" data-seed="phacelia" onclick="selectItem('seed','phacelia', this)"><img src="img/phacelia.svg" alt="Phacelia"><p>Phacelia</p></div>
+      <div class="card" data-seed="piselli" onclick="selectItem('seed','piselli', this)"><img src="img/piselli.svg" alt="Piselli"><p>Piselli</p></div>
+      <div class="card" data-seed="rape" onclick="selectItem('seed','rape', this)"><img src="img/rape.svg" alt="Rape"><p>Rape</p></div>
+      <div class="card" data-seed="ravanello_foraggio" onclick="selectItem('seed','ravanello_foraggio', this)"><img src="img/ravanello_foraggio.svg" alt="Ravanello del foraggio"><p>Ravanello del foraggio</p></div>
+      <div class="card" data-seed="riso" onclick="selectItem('seed','riso', this)"><img src="img/riso.svg" alt="Riso"><p>Riso</p></div>
+      <div class="card" data-seed="segale" onclick="selectItem('seed','segale', this)"><img src="img/segale.svg" alt="Segale"><p>Segale</p></div>
+      <div class="card" data-seed="semi_erba" onclick="selectItem('seed','semi_erba', this)"><img src="img/semi_erba.svg" alt="Semi di Erba"><p>Semi di Erba</p></div>
+      <div class="card" data-seed="senape" onclick="selectItem('seed','senape', this)"><img src="img/senape.svg" alt="Senape"><p>Senape</p></div>
+      <div class="card" data-seed="soia" onclick="selectItem('seed','soia', this)"><img src="img/soia.svg" alt="Soia"><p>Soia</p></div>
+      <div class="card" data-seed="trifoglio_rosso" onclick="selectItem('seed','trifoglio_rosso', this)"><img src="img/trifoglio_rosso.svg" alt="Trifoglio Rosso"><p>Trifoglio Rosso</p></div>
+      <div class="card" data-seed="vecce" onclick="selectItem('seed','vecce', this)"><img src="img/vecce.svg" alt="Vecce"><p>Vecce</p></div>
+    </div>
+
+    <div class="buttons sticky">
+      <button data-i18n="btnIndietro" onclick="prevStep('step1')">Indietro</button>
+      <button data-i18n="trovaRocchetto" onclick="nextStep('step3')" id="btnStep2" disabled>Trova Rocchetto</button>
+    </div>
+  </div>
+
+  <!-- STEP Risultato -->
+  <div class="step" id="step3">
+    <h2 data-i18n="stepRocchetti">Rocchetti Consigliati</h2>
+    <div class="result" id="result"></div>
+    <div class="buttons sticky">
+      <button data-i18n="btnIndietro" onclick="prevStep('step2')">Indietro</button>
+      <button data-i18n="btnNuovaRicerca" onclick="restart()">Nuova Ricerca</button>
+    </div>
+  </div>
+
+  <!-- STEP Seeds per rocchetto (dalla ricerca per codice) -->
+  <div class="step" id="stepSeeds">
+    <h2 data-i18n="stepSemiCompatibili">Semi compatibili</h2>
+    <div class="grid seeds" id="seedsByRocchetto"></div>
+    <div class="buttons sticky">
+      <button data-i18n="btnIndietro" onclick="prevStep('stepCodice')">Indietro</button>
+    </div>
+  </div>
+
+<script>
+/* --- variabili di stato --- */
+let selectedMachine = null;
+let selectedSeed = null;
+let seedsForSelectedRocchetto = []; // memorizza semi compatibili dell'ultimo rocchetto selezionato
+let currentLang = 'it'; // default
+
+// --------------------------
+// 1. Traduzioni multilingua
+// --------------------------
+const translations = {
+  it: {
+    homeTitle: "Benvenuto nel Metering Unit Selector",
+    trovaRocchetto: "Trova Rocchetto",
+    cercaCodice: "Cerca per Codice Rocchetto",
+    stepMacchina: "Seleziona la tua Macchina",
+    stepSeme: "Seleziona il Seme",
+    stepRocchetti: "Rocchetti Consigliati",
+    stepSemiCompatibili: "Semi compatibili",
+    btnAvanti: "Avanti",
+    btnIndietro: "Indietro",
+    btnNuovaRicerca: "Nuova Ricerca",
+    placeholderCodice: "Cerca codice...",
+    placeholderSeme: "Cerca seme...",
+	
+	seeds: {
+      avena: "Avena",
+      colza: "Colza",
+      cumino: "Cumino",
+      erba_medica: "Erba medica",
+      fagioli: "Fagioli",
+      farro: "Farro",
+      favino: "Favino",
+      frumento: "Frumento",
+      grano_saraceno: "Grano saraceno",
+      lino: "Lino",
+      loietto: "Loietto",
+      lupini: "Lupini",
+      miglio: "Miglio",
+      orzo: "Orzo",
+      papavero: "Papavero",
+      phacelia: "Phacelia",
+      piselli: "Piselli",
+      rape: "Rape",
+      ravanello_foraggio: "Ravanello del foraggio",
+      riso: "Riso",
+      segale: "Segale",
+      semi_erba: "Semi di Erba",
+      senape: "Senape",
+      soia: "Soia",
+      trifoglio_rosso: "Trifoglio Rosso",
+      vecce: "Vecce"
+    }
+  },
+  en: {
+    homeTitle: "Welcome to the Metering Unit Selector",
+    trovaRocchetto: "Find Metering Unit",
+    cercaCodice: "Search by Metering Unit Code",
+    stepMacchina: "Select your Machine",
+    stepSeme: "Select the Seed",
+    stepRocchetti: "Recommended Metering Unit",
+    stepSemiCompatibili: "Compatible Seeds",
+    btnAvanti: "Next",
+    btnIndietro: "Back",
+    btnNuovaRicerca: "New Search",
+    placeholderCodice: "Search code...",
+    placeholderSeme: "Search seed...",
+	
+	seeds: {
+      avena: "Oats",
+      colza: "Rapeseed",
+      cumino: "Caraway",
+      erba_medica: "Alfalfa",
+      fagioli: "Beans",
+      farro: "Spelt",
+      favino: "Field bean",
+      frumento: "Wheat",
+      grano_saraceno: "Buckwheat",
+      lino: "Flax",
+      loietto: "Ryegrass",
+      lupini: "Lupins",
+      miglio: "Millet",
+      orzo: "Barley",
+      papavero: "Poppy",
+      phacelia: "Phacelia",
+      piselli: "Peans",
+      rape: "Turnips",
+      ravanello_foraggio: "Fodder Radish",
+      riso: "Rice",
+      segale: "Rye",
+      semi_erba: "Grass Seeds",
+      senape: "Mustard",
+      soia: "Soy",
+      trifoglio_rosso: "Red Clover",
+      vecce: "Vetches"
+    }
+  },
+  fr: {
+    homeTitle: "Bienvenue dans le Sélecteur de Bobines",
+    trovaRocchetto: "Trouver Bobine",
+    cercaCodice: "Chercher par Code Bobine",
+    stepMacchina: "Sélectionnez votre Machine",
+    stepSeme: "Sélectionnez la Graine",
+    stepRocchetti: "Bobines Recommandées",
+    stepSemiCompatibili: "Graines Compatibles",
+    btnAvanti: "Suivant",
+    btnIndietro: "Retour",
+    btnNuovaRicerca: "Nouvelle Recherche",
+    placeholderCodice: "Chercher le code...",
+    placeholderSeme: "Chercher la graine...",
+	
+	seeds: {
+      avena: "Avoine",
+      colza: "Colza",
+      cumino: "Cumin",
+      erba_medica: "Luzerne",
+      fagioli: "Haricots",
+      farro: "Épeautre",
+      favino: "Fèverole",
+      frumento: "Blé",
+      grano_saraceno: "Sarrasin",
+      lino: "Lin",
+      loietto: "Ray-grass",
+      lupini: "Lupin",
+      miglio: "Millet",
+      orzo: "Orge",
+      papavero: "Pavot",
+      phacelia: "Phacélie",
+      piselli: "Pois",
+      rape: "Navet",
+      ravanello_foraggio: "Radis Fourrager",
+      riso: "Riz",
+      segale: "Seigle",
+      semi_erba: "Graminées",
+      senape: "Moutarde",
+      soia: "Soja",
+      trifoglio_rosso: "Trèfle",
+      vecce: "Vesces"
+	}
+  },
+};
+
+
+/* --- rocchetti (mappa) --- */
+const rocchetti = {
+  r1: { codice: "M79A00833", volume: 5.5, img: "img/m79a00833.svg" },
+  r2: { codice: "M79A00651", volume: 11, img: "img/m79a00651.svg" },
+  r3: { codice: "M79A00650", volume: 22, img: "img/m79a00650.svg" },
+  r4: { codice: "M79A00552", volume: 55, img: "img/m79a00552.svg" },
+  r5: { codice: "M79A00649", volume: 165, img: "img/m79a00649.svg" },
+  r6: { codice: "M79A00550", volume: 196, img: "img/m79a00550.svg" },
+  r7: { codice: "M79A00549", volume: 392, img: "img/m79a00549.svg" },
+  r8: { codice: "M79A00548", volume: 588, img: "img/m79a00548.svg" }
+};
+
+/* --- mapping macchine -> semi -> array di id rocchetti --- */
+const data = {
+  m1: {
+    avena: ["r4","r5"],
+    colza: ["r1","r2"],
+    cumino: ["r2","r3"],
+    erba_medica: ["r2","r3","r4"],
+    fagioli: ["r6","r7"],
+    farro: ["r7","r8"],
+    favino: ["r6","r7","r8"],
+    frumento: ["r4","r5"],
+    grano_saraceno: ["r5","r6"],
+    lino: ["r4","r5"],
+    loietto: ["r5","r6"],
+    lupini: ["r5","r6"],
+    miglio: ["r5"],
+    orzo: ["r4","r5"],
+    papavero: ["r1","r2"],
+    phacelia: ["r2","r3"],
+    piselli: ["r6","r7","r8"],
+    rape: ["r2","r3"],
+    ravanello_foraggio: ["r2","r3"],
+    riso: ["r5","r6","r7"],
+    segale: ["r5","r6","r7"],
+    semi_erba: ["r5","r6","r7"],
+    senape: ["r1","r2","r3"],
+    soia: ["r6","r7"],
+    trifoglio_rosso: ["r1","r2","r3"],
+    vecce: ["r5","r6"]
+  },
+  m2: {
+    avena: ["r4","r5"],
+    colza: ["r1","r2"],
+    cumino: ["r2","r3"],
+    erba_medica: ["r2","r3","r4"],
+    fagioli: ["r6","r7"],
+    farro: ["r7","r8"],
+    favino: ["r6","r7","r8"],
+    frumento: ["r4","r5"],
+    grano_saraceno: ["r5","r6"],
+    lino: ["r4","r5"],
+    loietto: ["r5","r6"],
+    lupini: ["r5","r6"],
+    miglio: ["r5"],
+    orzo: ["r4","r5"],
+    papavero: ["r1","r2"],
+    phacelia: ["r2","r3"],
+    piselli: ["r6","r7","r8"],
+    rape: ["r2","r3"],
+    ravanello_foraggio: ["r2","r3"],
+    riso: ["r5","r6","r7"],
+    segale: ["r5","r6","r7"],
+    semi_erba: ["r5","r6","r7"],
+    senape: ["r1","r2","r3"],
+    soia: ["r6","r7"],
+    trifoglio_rosso: ["r1","r2","r3"],
+    vecce: ["r5","r6"]
+  },
+  m3: {
+    avena: ["r4","r5"],
+    colza: ["r1","r2"],
+    cumino: ["r2","r3"],
+    erba_medica: ["r2","r3","r4"],
+    fagioli: ["r6","r7"],
+    farro: ["r7","r8"],
+    favino: ["r6","r7","r8"],
+    frumento: ["r4","r5"],
+    grano_saraceno: ["r5","r6"],
+    lino: ["r4","r5"],
+    loietto: ["r5","r6"],
+    lupini: ["r5","r6"],
+    miglio: ["r5"],
+    orzo: ["r4","r5"],
+    papavero: ["r1","r2"],
+    phacelia: ["r2","r3"],
+    piselli: ["r6","r7","r8"],
+    rape: ["r2","r3"],
+    ravanello_foraggio: ["r2","r3"],
+    riso: ["r5","r6","r7"],
+    segale: ["r5","r6","r7"],
+    semi_erba: ["r5","r6","r7"],
+    senape: ["r1","r2","r3"],
+    soia: ["r6","r7"],
+    trifoglio_rosso: ["r1","r2","r3"],
+    vecce: ["r5","r6"]
+  },
+  m4: {
+    avena: ["r4","r5"],
+    colza: ["r1","r2"],
+    cumino: ["r2","r3"],
+    erba_medica: ["r2","r3","r4"],
+    fagioli: ["r6","r7"],
+    farro: ["r7","r8"],
+    favino: ["r6","r7","r8"],
+    frumento: ["r4","r5"],
+    grano_saraceno: ["r5","r6"],
+    lino: ["r4","r5"],
+    loietto: ["r5","r6"],
+    lupini: ["r5","r6"],
+    miglio: ["r5"],
+    orzo: ["r4","r5"],
+    papavero: ["r1","r2"],
+    phacelia: ["r2","r3"],
+    piselli: ["r6","r7","r8"],
+    rape: ["r2","r3"],
+    ravanello_foraggio: ["r2","r3"],
+    riso: ["r5","r6","r7"],
+    segale: ["r5","r6","r7"],
+    semi_erba: ["r5","r6","r7"],
+    senape: ["r1","r2","r3"],
+    soia: ["r6","r7"],
+    trifoglio_rosso: ["r1","r2","r3"],
+    vecce: ["r5","r6"]
+  },
+  m5: {
+    avena: ["r4","r5"],
+    colza: ["r1","r2"],
+    cumino: ["r2","r3"],
+    erba_medica: ["r2","r3","r4"],
+    fagioli: ["r6","r7"],
+    farro: ["r7","r8"],
+    favino: ["r6","r7","r8"],
+    frumento: ["r4","r5"],
+    grano_saraceno: ["r5","r6"],
+    lino: ["r4","r5"],
+    loietto: ["r5","r6"],
+    lupini: ["r5","r6"],
+    miglio: ["r5"],
+    orzo: ["r4","r5"],
+    papavero: ["r1","r2"],
+    phacelia: ["r2","r3"],
+    piselli: ["r6","r7","r8"],
+    rape: ["r2","r3"],
+    ravanello_foraggio: ["r2","r3"],
+    riso: ["r5","r6","r7"],
+    segale: ["r5","r6","r7"],
+    semi_erba: ["r5","r6","r7"],
+    senape: ["r1","r2","r3"],
+    soia: ["r6","r7"],
+    trifoglio_rosso: ["r1","r2","r3"],
+    vecce: ["r5","r6"]
+  }
+};
+
+/* --- funzioni generiche --- */
+function selectItem(type, id, element) {
+  if(type==='machine') selectedMachine = id;
+  if(type==='seed') selectedSeed = id;
+
+  const container = type==='machine' ? document.querySelectorAll('#step1 .card') : document.querySelectorAll('#seedGrid .card');
+  container.forEach(c=>c.classList.remove('selected'));
+  element.classList.add('selected');
+
+  if(type==='machine') document.getElementById('btnStep1').disabled = false;
+  if(type==='seed') document.getElementById('btnStep2').disabled = false;
+}
+
+function nextStep(stepId){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  const el = document.getElementById(stepId);
+  if(!el) return;
+  el.classList.add('active');
+  setHomeIconVisibility(stepId);
+
+  if(stepId==='stepCodice') loadRocchettoGrid();
+  if(stepId==='step2') updateSeedGrid();
+  if(stepId==='step3') showRocchetto();
+}
+
+function prevStep(stepId){ nextStep(stepId); }
+
+function goHome() {
+  // Nasconde tutti gli step
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  
+  // Mostra la home
+  document.getElementById('home').classList.add('active');
+  setHomeIconVisibility('home');
+
+  // Reset selezioni
+  selectedMachine = null;
+  selectedSeed = null;
+
+  // Reset card selezionate
+  document.querySelectorAll('.card').forEach(card => card.classList.remove('selected'));
+
+  // Reset pulsanti abilitati
+  const btnStep1 = document.getElementById('btnStep1');
+  const btnStep2 = document.getElementById('btnStep2');
+  if (btnStep1) btnStep1.disabled = true;
+  if (btnStep2) btnStep2.disabled = true;
+
+  // Reset barre di ricerca
+  const searchSeed = document.getElementById('searchSeed');
+  const searchRocchetto = document.getElementById('searchRocchetto');
+  if (searchSeed) searchSeed.value = '';
+  if (searchRocchetto) searchRocchetto.value = '';
+
+  // Reset griglia semi compatibili
+  const seedsContainer = document.getElementById('seedsByRocchetto');
+  if (seedsContainer) seedsContainer.innerHTML = '';
+
+  // Reset griglia rocchetti se sei passato da "Cerca per codice"
+  const rocchettoGrid = document.getElementById('rocchettoGrid');
+  if (rocchettoGrid) rocchettoGrid.innerHTML = '';
+
+  // Aggiorna la griglia semi alla lingua corrente
+  updateSeedGrid();
+}
+
+/* mostra rocchetti consigliati */
+function showRocchetto(){
+  const result = document.getElementById('result');
+  result.innerHTML = '';
+  if(selectedMachine && selectedSeed && data[selectedMachine] && data[selectedMachine][selectedSeed]){
+    const ids = data[selectedMachine][selectedSeed].slice().sort((a,b)=>rocchetti[a].volume-rocchetti[b].volume);
+    ids.forEach(id=>{
+      const r = rocchetti[id];
+      result.innerHTML += `
+        <div class="rocchetto">
+          <img src="${r.img}" alt="Rocchetto">
+          <div class="rocchetto-info">
+            <div class="volume-box"><span class="volume-value">${r.volume}</span><span class="volume-unit">cm³</span></div>
+            <div class="code">${r.codice}</div>
+          </div>
+        </div>`;
+    });
+  } else {
+    result.innerHTML = `<p>${translations[currentLang].stepRocchetti}: Nessun rocchetto trovato</p>`;
+  }
+}
+
+/* reset */
+function restart(){
+  selectedMachine = null;
+  selectedSeed = null;
+  document.querySelectorAll('.card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('btnStep1').disabled = true;
+  document.getElementById('btnStep2').disabled = true;
+  document.getElementById('searchSeed').value='';
+  updateSeedGrid();
+  nextStep('home');
+}
+
+/* filtri */
+function filterSeeds(){
+  const input = document.getElementById('searchSeed').value.toLowerCase();
+  document.querySelectorAll('#seedGrid .card').forEach(card=>{
+    const name = card.querySelector('p').textContent.toLowerCase();
+    card.style.display = name.includes(input) ? 'flex':'none';
+  });
+}
+
+function filterRocchetto(){
+  const input = document.getElementById('searchRocchetto').value.toLowerCase();
+  document.querySelectorAll('#rocchettoGrid .card').forEach(card=>{
+    const text = card.querySelector('p').textContent.toLowerCase();
+    card.style.display = text.includes(input) ? 'flex':'none';
+  });
+}
+
+/* gestione rocchetto selezionato */
+function selectRocchetto(id){
+  const semiSet = new Set();
+  Object.values(data).forEach(machine=>{
+    Object.entries(machine).forEach(([seed, arr])=>{
+      if(arr.includes(id)) semiSet.add(seed);
+    });
+  });
+
+  seedsForSelectedRocchetto = Array.from(semiSet).sort(); // <-- sostituisce seedsArray
+
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('stepSeeds').classList.add('active');
+  setHomeIconVisibility('stepSeeds');
+
+  renderSeedsByRocchetto(); // <-- genera la griglia
+}
+
+function renderSeedsByRocchetto(){
+  const container = document.getElementById('seedsByRocchetto');
+  if(!container) return;
+  container.innerHTML = '';
+  seedsForSelectedRocchetto.forEach(seed=>{
+    const name = translations[currentLang].seeds[seed] || seed;
+    container.innerHTML += `<div class="card"><img src="img/${seed}.svg" alt="${name}"><p>${name}</p></div>`;
+  });
+}
+
+/* aggiorna il contenuto delle card semi automaticamente */
+function updateSeedGrid(){
+  // aggiorna i nomi dei semi nelle card (#seedGrid .card)
+  document.querySelectorAll('#seedGrid .card').forEach(card=>{
+    const onclickAttr = card.getAttribute('onclick') || '';
+    // estrai tutte le stringhe tra apici: ["seed","avena"] -> vogliamo l'indice 1 (secondo argomento)
+    const matches = [...onclickAttr.matchAll(/'([^']+)'/g)].map(m => m[1]);
+    let id = null;
+    if(matches.length >= 2) {
+      id = matches[1]; // secondo argomento di selectItem('seed','<id>', this)
+    } else if (card.dataset && card.dataset.seed) {
+      id = card.dataset.seed; // fallback su data-seed se presente
+    } else if (matches.length === 1) {
+      id = matches[0]; // fallback minimale
+    }
+    if(!id) return;
+
+    // prendi la traduzione (se esiste)
+    const name = translations[currentLang] && translations[currentLang].seeds && translations[currentLang].seeds[id];
+    if(name) {
+      const p = card.querySelector('p');
+      if(p) p.textContent = name;
+    }
+  });
+
+  // aggiorna i placeholder delle ricerche se definite nelle traduzioni
+  const phSeed = document.getElementById('searchSeed');
+  if(phSeed && translations[currentLang] && translations[currentLang].placeholderSeme) {
+    phSeed.placeholder = translations[currentLang].placeholderSeme;
+  }
+  const phCode = document.getElementById('searchRocchetto');
+  if(phCode && translations[currentLang] && translations[currentLang].placeholderCodice) {
+    phCode.placeholder = translations[currentLang].placeholderCodice;
+  }
+}
+
+/* griglia rocchetti */
+function loadRocchettoGrid(){
+  const grid = document.getElementById('rocchettoGrid');
+  grid.innerHTML = '';
+  Object.entries(rocchetti).forEach(([id,r])=>{
+    grid.innerHTML += `<div class="card" onclick="selectRocchetto('${id}')">
+      <img src="${r.img}" alt="${r.codice}" style="width:80px;max-width:none;height:auto;">
+      <p style="font-size:1.1rem;margin-top:5px;">${r.codice}</p>
+    </div>`;
+  });
+}
+
+function setHomeIconVisibility(stepId){
+  const homeIcon = document.querySelector('.home-icon');
+  if(!homeIcon) return;
+  homeIcon.style.display = stepId==='home' ? 'none' : 'flex';
+}
+
+/* lingua */
+function toggleLangMenu(){
+  const menu = document.getElementById('langMenu');
+  menu.style.display = menu.style.display==='flex'?'none':'flex';
+}
+
+function setLang(lang){
+  currentLang = lang;
+  document.getElementById('currentLang').src = 'img/' + lang + '.png';
+  document.getElementById('langMenu').style.display = 'none';
+  
+  // aggiorna titoli e semi
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const translation = translations[lang][key];
+    if (translation) {
+      if (el.tagName.toLowerCase() === "input") {
+        el.placeholder = translation; 
+      } else if (el.tagName.toLowerCase() === "button") {
+        el.textContent = translation;
+      } else {
+        el.textContent = translation;
+      }
+    }
+  });
+
+  updateSeedGrid();            // aggiorna griglia step2
+  renderSeedsByRocchetto();    // aggiorna griglia semi compatibili se sei in stepSeeds
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('Service Worker registrato:', reg))
+      .catch(err => console.error('Errore Service Worker:', err));
+  });
+}
+
+document.addEventListener('click', (e) => {
+  const langMenu = document.getElementById('langMenu');
+  const langIcon = document.querySelector('.lang-icon');
+  if (!langMenu.contains(e.target) && !langIcon.contains(e.target)) {
+    langMenu.style.display = 'none';
+  }
+});
+
+/* esporta funzioni globali */
+window.selectItem = selectItem;
+window.selectRocchetto = selectRocchetto;
+window.nextStep = nextStep;
+window.prevStep = prevStep;
+window.goHome = goHome;
+window.restart = restart;
+window.toggleLangMenu = toggleLangMenu;
+window.setLang = setLang;
+window.addEventListener('DOMContentLoaded', updateSeedGrid);
+
+</script>
+</body>
+</html>
