@@ -11,7 +11,7 @@
     body { background-color: #2c2c2c; color: #f1f1f1; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
 
     header { text-align: center; padding: 20px 20px 20px; position: relative; width:100%; max-width:900px; }
-    header img.logo { max-width: 70px; margin-bottom: 20px; display:block; margin-left:auto; margin-right:auto; }
+    header img.logo { max-width: 70px; margin-bottom: 20px; margin-top: -6px; display:block; margin-left:auto; margin-right:auto; }
     h1 { font-size: 1.7rem; margin: 0px 0; font-weight: bold; text-align:center; }
 
     /* pulsante home in alto a destra */
@@ -86,7 +86,7 @@
 
 #result .rocchetto img {
   height: auto;
-  margin-bottom: 18px;
+  margin-bottom: 15px;
 }
 
 #result .rocchetto .rocchetto-info {
@@ -119,7 +119,9 @@
 
   <!-- HOME -->
   <div class="step active" id="home">
+
     <h2 data-i18n="homeTitle" style="text-align:center;">Benvenuto nel Metering Unit Selector</h2>
+
     <div class="home-buttons" style="display:flex;align-items:center;justify-content:center;">
       <button onclick="nextStep('step1')">
         <!-- icona la carichi tu nella cartella -->
@@ -140,15 +142,19 @@
 
   <!-- STEP Codice (lista rocchetti) -->
   <div class="step" id="stepCodice">
-    <h2 data-i18n="cercaCodice">Cerca per Codice Rocchetto</h2>
-    <input type="text" id="searchRocchetto" placeholder="Cerca codice..." onkeyup="filterRocchetto()" style="width:100%;padding:10px;border-radius:8px;border:none;margin-bottom:15px;">
+    
+	<h2 data-i18n="cercaCodice" style="text-align:center;">Cerca per Codice Rocchetto</h2>
+    
+	<input type="text" id="searchRocchetto" placeholder="Cerca codice..." onkeyup="filterRocchetto()" style="width:100%;padding:10px;border-radius:8px;border:none;margin-bottom:15px;">
     <div class="grid rocchetti seeds" id="rocchettoGrid"></div>
 
   </div>
 
   <!-- STEP Macchina -->
   <div class="step" id="step1">
-    <h2 data-i18n="stepMacchina">Seleziona la tua Macchina</h2>
+  
+    <h2 data-i18n="stepMacchina" style="text-align:center;">Seleziona la tua Macchina</h2>
+	
     <div class="grid machines" id="machinesGrid">
       <div class="card" onclick="selectItem('machine','m1', this)"><img src="img/JETM_RMT_1.png" alt="JET-M"><p>JET-M</p></div>
       <div class="card" onclick="selectItem('machine','m2', this)"><img src="img/JETX_RTEK_1.png" alt="JET-X"><p>JET-X</p></div>
@@ -165,7 +171,9 @@
 
   <!-- STEP Seme -->
   <div class="step" id="step2">
-    <h2 data-i18n="stepSeme">Seleziona il Seme</h2>
+    
+	<h2 data-i18n="stepSeme" style="text-align:center;">Seleziona il Seme</h2>
+	
     <input type="text" id="searchSeed" placeholder="Cerca seme..." onkeyup="filterSeeds()" style="width:100%;padding:10px;border-radius:8px;border:none;margin-bottom:15px;">
     <div class="grid seeds" id="seedGrid">
       <div class="card" data-seed="avena" onclick="selectItem('seed','avena', this)"><img src="img/avena.svg" alt="Avena"><p>Avena</p></div>
@@ -204,7 +212,9 @@
 
   <!-- STEP Risultato -->
   <div class="step" id="step3">
-    <h2 data-i18n="stepRocchetti">Rocchetti Consigliati</h2>
+  
+    <h2 data-i18n="stepRocchetti" style="text-align:center;">Rocchetti Consigliati</h2>
+	
     <div class="result" id="result"></div>
     <div class="buttons sticky">
       <button data-i18n="btnIndietro" onclick="prevStep('step2')">Indietro</button>
@@ -214,7 +224,9 @@
 
   <!-- STEP Seeds per rocchetto (dalla ricerca per codice) -->
   <div class="step" id="stepSeeds">
-    <h2 data-i18n="stepSemiCompatibili">Semi compatibili</h2>
+  
+    <h2 data-i18n="stepSemiCompatibili" style="text-align:center;">Semi compatibili</h2>
+	
     <div class="grid seeds" id="seedsByRocchetto"></div>
     <div class="buttons sticky">
       <button data-i18n="btnIndietro" onclick="prevStep('stepCodice')">Indietro</button>
