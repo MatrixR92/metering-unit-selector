@@ -1028,20 +1028,21 @@ function setLang(lang){
   // aggiorna titoli e semi
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    const translation = translations[lang][key];
+    const translation = translations[lang] && translations[lang][key];
     if (translation) {
       if (el.tagName.toLowerCase() === "input") {
         el.placeholder = translation; 
-      } else if (el.tagName.toLowerCase() === "button") {
-        el.textContent = translation;
       } else {
         el.textContent = translation;
       }
     }
   });
 
-  updateSeedGrid();            // aggiorna griglia step2
-  renderSeedsByRocchetto();    // aggiorna griglia semi compatibili se sei in stepSeeds
+  // FORZA l'aggiornamento della griglia dei semi anche se currentStep non è settato correttamente
+  if (typeof updateSeedGrid === 'function') updateSeedGrid(true);
+
+  // aggiorna anche la griglia semi compatibili (se esiste), forzando l'aggiornamento
+  if (typeof renderSeedsByRocchetto === 'function') renderSeedsByRocchetto(true);
 }
 
 if ('serviceWorker' in navigator) {
