@@ -244,6 +244,8 @@ h2 {
 .home-buttons button:hover { background: #e0a800; }
 
 button {
+  all: unset;
+  display: inline-block;
   background: #FCC133;
   color: #000;
   border: none;
@@ -251,6 +253,7 @@ button {
   border-radius: 8px;
   font-size: 1.1rem;
   cursor: pointer;
+  text-align: center;
 }
 
 button:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -358,7 +361,6 @@ input[type="text"] {
 
     <div class="home-buttons" style="display:flex;align-items:center;justify-content:center;">
       <button onclick="nextStep('step1')">
-        <!-- icona la carichi tu nella cartella -->
         <div style="display:flex;flex-direction:column;align-items:center;">
           <img src="img/trova_rocchetto.svg" alt="" style="height:100px;margin-bottom:20px">
           <span data-i18n="trovaRocchetto">Trova Rocchetto</span>
