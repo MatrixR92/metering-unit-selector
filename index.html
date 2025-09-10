@@ -244,8 +244,6 @@ h2 {
 .home-buttons button:hover { background: #e0a800; }
 
 button {
-  all: unset;
-  display: inline-block;
   background: #FCC133;
   color: #000;
   border: none;
@@ -362,14 +360,14 @@ input[type="text"] {
     <div class="home-buttons" style="display:flex;align-items:center;justify-content:center;">
       <button onclick="nextStep('step1')">
         <div style="display:flex;flex-direction:column;align-items:center;">
-          <img src="img/trova_rocchetto.svg" alt="" style="height:100px;margin-bottom:20px">
+          <img src="img/trova_rocchetto.svg" alt="" style="height:100px;width:auto;display:block;margin-bottom:20px">
           <span data-i18n="trovaRocchetto">Trova Rocchetto</span>
         </div>
       </button>
 
       <button onclick="nextStep('stepCodice')">
         <div style="display:flex;flex-direction:column;align-items:center;">
-          <img src="img/cerca_codice.svg" alt="" style="height:110px;margin-bottom:20px">
+          <img src="img/cerca_codice.svg" alt="" style="height:110px;width:auto;display:block;margin-bottom:20px">
           <span data-i18n="cercaCodice">Cerca per Codice</span>
         </div>
       </button>
