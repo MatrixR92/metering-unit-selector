@@ -622,6 +622,7 @@ function goHome() {
   // Reset barre di ricerca
   const searchSeed = document.getElementById('searchSeed');
   const searchRocchetto = document.getElementById('searchRocchetto');
+  selectedSeed = null;
   if (searchSeed) searchSeed.value = '';
   if (searchRocchetto) searchRocchetto.value = '';
 
@@ -830,5 +831,6 @@ window.addEventListener('DOMContentLoaded', updateSeedGrid);
 </script>
 </body>
 </html>
+
 
 
