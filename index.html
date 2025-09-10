@@ -599,19 +599,25 @@ function nextStep(stepId){
 function prevStep(stepId){ nextStep(stepId); }
 
 function goHome() {
-  // Nasconde tutti gli step
+  // Nasconde tutti gli step e mostra la home
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-  
-  // Mostra la home
-  document.getElementById('home').classList.add('active');
+  const homeEl = document.getElementById('home');
+  if (homeEl) homeEl.classList.add('active');
   setHomeIconVisibility('home');
 
-  // Reset selezioni
+  // --- Reset stato JS ---
   selectedMachine = null;
   selectedSeed = null;
 
-  // Reset card selezionate
-  document.querySelectorAll('.card').forEach(card => card.classList.remove('selected'));
+  // Rimuovi classi .selected da qualunque elemento
+  document.querySelectorAll('.card.selected, .seed-card.selected, .selected, button.selected')
+    .forEach(el => el.classList.remove('selected'));
+
+  // Rimuovi classi che potrebbero far comparire pseudo-elementi o icone
+  document.querySelectorAll('.has-value, .seed-selected, .with-icon, .show-seed')
+    .forEach(el => {
+      el.classList.remove('has-value', 'seed-selected', 'with-icon', 'show-seed');
+    });
 
   // Reset pulsanti abilitati
   const btnStep1 = document.getElementById('btnStep1');
@@ -619,23 +625,76 @@ function goHome() {
   if (btnStep1) btnStep1.disabled = true;
   if (btnStep2) btnStep2.disabled = true;
 
-  // Reset barre di ricerca
-  const searchSeed = document.getElementById('searchSeed');
-  const searchRocchetto = document.getElementById('searchRocchetto');
-  selectedSeed = null;
-  if (searchSeed) searchSeed.value = '';
-  if (searchRocchetto) searchRocchetto.value = '';
+  // --- Reset input di ricerca (svuota e fornisce eventi) ---
+  const searchSeed = document.getElementById('searchSeed') || document.getElementById('seedSearch') || document.querySelector('input[type="search"], input[data-role="search-seed"]');
+  const searchRocchetto = document.getElementById('searchRocchetto') || document.querySelector('input[data-role="search-rocchetto"]');
 
-  // Reset griglia semi compatibili
-  //const seedsContainer = document.getElementById('seedsByRocchetto');
-  //if (seedsContainer) seedsContainer.innerHTML = '';
+  if (searchSeed) {
+    searchSeed.value = '';
+    // rimuovi anche l'attributo value e placeholder se impostato in altro modo
+    searchSeed.removeAttribute('value');
+    // Triggera gli event handler legati all'input
+    searchSeed.dispatchEvent(new Event('input', { bubbles: true }));
+    searchSeed.dispatchEvent(new Event('change', { bubbles: true }));
+    searchSeed.blur();
+  }
+  if (searchRocchetto) {
+    searchRocchetto.value = '';
+    searchRocchetto.removeAttribute('value');
+    searchRocchetto.dispatchEvent(new Event('input', { bubbles: true }));
+    searchRocchetto.dispatchEvent(new Event('change', { bubbles: true }));
+    searchRocchetto.blur();
+  }
 
-  // Reset griglia rocchetti se sei passato da "Cerca per codice"
+  // --- Svuota o nascondi eventuali preview/badge di seme ---
+  const previewSelectors = ['#selectedSeedPreview', '#seedPreview', '.selected-seed', '.seed-preview', '.seed-icon-preview'];
+  previewSelectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(node => {
+      // se è un'immagine nascondila, altrimenti svuota il contenuto
+      if (node.tagName === 'IMG') {
+        node.src = '';
+        node.style.display = 'none';
+      } else {
+        node.innerHTML = '';
+        node.style.display = 'none';
+      }
+    });
+  });
+
+  // --- Pulisci container e eventuali cache interne ---
+  const seedsContainer = document.getElementById('seedsByRocchetto');
+  if (seedsContainer) seedsContainer.innerHTML = ''; // puliamo prima
   const rocchettoGrid = document.getElementById('rocchettoGrid');
   if (rocchettoGrid) rocchettoGrid.innerHTML = '';
 
-  // Aggiorna la griglia semi alla lingua corrente
-  updateSeedGrid();
+  // reset di variabili globali che talvolta usano il filtro
+  try {
+    if (window.lastSeedQuery !== undefined) window.lastSeedQuery = '';
+    if (window.seedsFiltered !== undefined) window.seedsFiltered = null;
+    if (window._selectedSeedId !== undefined) window._selectedSeedId = null;
+  } catch (e) { /* no-op */ }
+
+  // rimuovi eventuali chiavi in localStorage/sessionStorage
+  try {
+    localStorage.removeItem('selectedSeed');
+    localStorage.removeItem('seedSearch');
+    sessionStorage.removeItem('selectedSeed');
+  } catch (e) { /* no-op */ }
+
+  // Forza un repaint e poi ricostruisci la griglia (a freddo)
+  requestAnimationFrame(() => {
+    // Se updateSeedGrid legge il valore del campo di ricerca, ora troverà stringa vuota
+    if (typeof updateSeedGrid === 'function') updateSeedGrid();
+    // se usi loadRocchettoGrid per popolare inizialmente i semi, richiamala
+    if (typeof loadRocchettoGrid === 'function') loadRocchettoGrid();
+    // rimuovi eventuali residui di selezione visiva
+    document.querySelectorAll('.card[aria-selected="true"]').forEach(el => {
+      el.removeAttribute('aria-selected');
+    });
+  });
+
+  // Scorri in cima (opzionale)
+  window.scrollTo(0, 0);
 }
 
 /* mostra rocchetti consigliati */
@@ -831,6 +890,5 @@ window.addEventListener('DOMContentLoaded', updateSeedGrid);
 </script>
 </body>
 </html>
-
 
 
