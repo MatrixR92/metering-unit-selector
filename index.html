@@ -6,98 +6,291 @@
   <title>Metering Unit Selector</title>
   <link rel="manifest" href="manifest.json">
   <style>
+/* -----------------------------------
+   Reset e impostazioni generali
+----------------------------------- */
+* {
+  box-sizing: border-box;
+}
 
-    * { box-sizing: border-box; }
-	
-	html {
-	-webkit-text-size-adjust: 100%; /* disabilita lo scaling automatico */
-	-ms-text-size-adjust: 100%;     /* compatibilità IE/Edge */
-	}
-	
-	body, h1, h2, h3, p, li, span {
-	-webkit-font-smoothing: antialiased;
-	}
-	
-    html, body { height: 100%; width: 100%; overflow-x: hidden; margin: 0; font-family: "Myriad Pro", sans-serif; padding: 0; background-color: #2c2c2c; }
-    body { background-color: #2c2c2c; color: #f1f1f1; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
 
-    
+body, h1, h2, h3, p, li, span {
+  -webkit-font-smoothing: antialiased;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  font-family: "Myriad Pro", sans-serif;
+  background-color: #2c2c2c;
+  color: #f1f1f1;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* -----------------------------------
+   Header
+----------------------------------- */
 header {
   text-align: center;
   padding: 15px 20px 20px;
-  position: fixed;      /* fisso in cima */
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  background-color: #2c2c2c;
+  background-color: rgba(44,44,44,0.8);
   border-bottom: 1px solid rgba(255,255,255,0.1);
-  background-color: rgba(44,44,44,0.8); /* non opaco al 100% */
   backdrop-filter: blur(20px);
 }
+
+header img.logo {
+  max-width: 70px;
+  margin: -3px auto 20px auto;
+  display: block;
+}
+
+h1 {
+  font-size: 22px;
+  font-weight: bold;
+  line-height: 1.2;
+  margin: 0 0;
+  text-align: center;
+}
+
+h2 {
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+/* -----------------------------------
+   Icone pulsanti Header
+----------------------------------- */
+.home-icon, .lang-icon {
+  position: absolute;
+  top: 18px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.home-icon { right: 18px; }
+.lang-icon { left: 18px; }
+
+.home-icon img, .lang-icon img {
+  width: 100%;
+  height: auto;
+}
+
+.lang-menu {
+  position: absolute;
+  top: 60px;
+  left: 18px;
+  background: #3a3a3a;
+  border-radius: 12px;
+  overflow: hidden;
+  display: none;
+  flex-direction: column;
+  min-width: 120px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.lang-menu div {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.lang-menu div:hover {
+  background: #4a4a4a;
+}
+
+.lang-menu img {
+  width: 24px;
+  height: auto;
+}
+
+/* -----------------------------------
+   Layout contenuto
+----------------------------------- */
 .content {
-  padding-top: 130px;      /* spazio per l’header */
+  padding-top: 130px; /* spazio per header */
   width: 100%;
   max-width: 900px;
-  margin: 0 auto;          /* centra il contenuto */
+  margin: 0 auto;
 }
-    header img.logo { max-width: 70px; margin-bottom: 20px; margin-top: -3px; display:block; margin-left:auto; margin-right:auto; }
-    h1 { font-size: 22px; margin: 0px 0; font-weight: bold; text-align:center; line-height: 1.2;}
-	h2 {font-size: 18px; line-height: 1.3;}
-    /* pulsante home in alto a destra */
-    .home-icon { position:absolute; top:18px; right:18px; cursor:pointer; width:36px; height:36px; display:flex; align-items:center; justify-content:center; }
-    .home-icon img { width:100%; height:auto; }
 
-	.lang-icon { position:absolute; top:18px; left:18px; cursor:pointer; width:34px; height:34px; display:flex; align-items:center; justify-content:center; }
-	.lang-icon img { width:100%; height:auto; }
+.step { display: none; width: 100%; max-width: 900px; padding: 0 20px 20px; }
+.step.active { display: block; }
 
-	.lang-menu { position:absolute; top:60px; left:18px; background:#3a3a3a; border-radius:12px; overflow:hidden; display:none; flex-direction:column; min-width:120px; box-shadow:0 4px 10px rgba(0,0,0,0.3);}
-	.lang-menu div { padding:8px 12px; display:flex; align-items:center; gap:8px; cursor:pointer; }
-	.lang-menu div:hover { background:#4a4a4a; }
-	.lang-menu img { width:24px; height:auto; }
+/* -----------------------------------
+   Grid
+----------------------------------- */
+.grid { display: grid; gap: 15px; }
 
-    .step { display: none; width: 100%; max-width: 900px; padding: 0 20px 20px; }
-    .step.active { display: block; }
+.machines {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
 
-    .grid { display: grid; gap: 15px; }
-    .machines { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
-    .machines .card img { max-width: 150px; margin-bottom: 0px; }
+.machines .card img { max-width: 150px; margin-bottom: 0; }
 
-    .seeds { grid-template-columns: repeat(auto-fill, 110px); justify-content: center; gap: 10px; }
-    .seeds .card { width: 110px; height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; }
-    .seeds .card img { max-width: 50px; margin-bottom: 15px; }
-    .seeds .card p { font-size: 15px; margin: 0; text-align: center; word-break:break-word; line-height: 1.4;}
+.seeds {
+  grid-template-columns: repeat(auto-fill, 110px);
+  justify-content: center;
+  gap: 10px;
+}
 
-    .card { background: #3a3a3a; border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; }
-    .card:hover { background: #4a4a4a; }
-    .card.selected { border: 2px solid #FCC133; }
+.seeds .card {
+  width: 110px;
+  height: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
 
-    .buttons { display: flex; justify-content: space-between; margin-top: 20px; gap:10px; }
-    .buttons.center { flex-direction: column; align-items: center; }
-	
-	.buttons.sticky { position: sticky; bottom: 0px; background: #2c2c2c; padding: 10px 0 26px 0; display: flex; justify-content: space-between; gap: 10px; z-index: 50; }
-	.buttons.sticky button { flex: 1; }
-	
-    .home-buttons { display:flex; flex-direction:column; gap:16px; margin-top:18px; }
-    .home-buttons button { background:#FCC133; color:#000; border:none; padding:18px; border-radius:12px; font-size:1.1rem; cursor:pointer; height:200px; width:100%; max-width:420px; }
-    .home-buttons button:hover{background:#e0a800;}
+.seeds .card img { max-width: 50px; margin-bottom: 15px; }
 
-    button { background: #FCC133; color: #000; border: none; padding: 12px 20px; border-radius: 8px; font-size: 1.1rem; cursor: pointer; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    button:hover:enabled { background: #e0a800; }
+.seeds .card p {
+  font-size: 15px;
+  margin: 0;
+  text-align: center;
+  word-break: break-word;
+  line-height: 1.4;
+}
 
-    .rocchetto { display: flex; align-items: center; background: #3a3a3a; border-radius: 12px; padding: 15px; }
-    .rocchetto img { width: 120px; height: auto; }
-    .rocchetto-info { display: flex; align-items: center; gap: 12px; }
-    .volume-box { display: inline-block; background: #fff; color: #2c2c2c; padding: 8px 15px; border-radius: 10px; }
-    .volume-value { font-size: 2rem; font-weight: bold; }
-    .volume-unit { font-size: 1.4rem; margin-left: 4px; }
-    .code { font-size: 1.2rem; color: #fff; }
+/* -----------------------------------
+   Card generiche
+----------------------------------- */
+.card {
+  background: #3a3a3a;
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+}
 
-	.rocchetto-card img { max-width: 120px; margin-bottom: 10px; }
-	.rocchetto-card p { font-size: 1.2rem; font-weight: bold;  margin: 0; }
+.card:hover { background: #4a4a4a; }
+.card.selected { border: 2px solid #FCC133; }
 
-	#result {
+/* -----------------------------------
+   Pulsanti
+----------------------------------- */
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.buttons.center {
+  flex-direction: column;
+  align-items: center;
+}
+
+.buttons.sticky {
+  position: sticky;
+  bottom: 0;
+  background: #2c2c2c;
+  padding: 10px 0 26px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  z-index: 50;
+}
+
+.buttons.sticky button { flex: 1; }
+
+.home-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.home-buttons button {
+  background: #FCC133;
+  color: #000;
+  border: none;
+  padding: 18px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  height: 200px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.home-buttons button:hover { background: #e0a800; }
+
+button {
+  background: #FCC133;
+  color: #000;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button:hover:enabled { background: #e0a800; }
+
+/* -----------------------------------
+   Rocchetto
+----------------------------------- */
+.rocchetto {
+  display: flex;
+  align-items: center;
+  background: #3a3a3a;
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.rocchetto img { width: 120px; height: auto; }
+
+.rocchetto-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.volume-box {
+  display: inline-block;
+  background: #fff;
+  color: #2c2c2c;
+  padding: 8px 15px;
+  border-radius: 10px;
+}
+
+.volume-value { font-size: 2rem; font-weight: bold; }
+.volume-unit { font-size: 1.4rem; margin-left: 4px; }
+.code { font-size: 1.2rem; color: #fff; }
+
+.rocchetto-card img { max-width: 120px; margin-bottom: 10px; }
+.rocchetto-card p { font-size: 1.2rem; font-weight: bold; margin: 0; }
+
+/* -----------------------------------
+   Result Grid
+----------------------------------- */
+#result {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
@@ -106,7 +299,7 @@ header {
 
 #result .rocchetto {
   display: flex;
-  flex-direction: column; /* verticalizza contenuto */
+  flex-direction: column;
   align-items: center;
   padding: 10px;
   background: #3a3a3a;
@@ -114,20 +307,25 @@ header {
   text-align: center;
 }
 
-#result .rocchetto img {
-  height: auto;
-  margin-bottom: 15px;
-}
+#result .rocchetto img { height: auto; margin-bottom: 15px; }
 
 #result .rocchetto .rocchetto-info {
   display: flex;
-  flex-direction: column; /* volume e codice in colonna */
+  flex-direction: column;
   align-items: center;
   gap: 18px;
 }
-    input[type="text"] { background:#ffffff10; color:#fff; border:none; outline:none; }
-	
-	
+
+/* -----------------------------------
+   Input
+----------------------------------- */
+input[type="text"] {
+  background: #ffffff10;
+  color: #fff;
+  border: none;
+  outline: none;
+}
+
   </style>
 </head>
 <body>
@@ -178,7 +376,7 @@ header {
     
 	<h2 data-i18n="cercaCodice" style="text-align:center;">Cerca per Codice Rocchetto</h2>
     
-	<input type="text" id="searchRocchetto" placeholder="Cerca codice..." onkeyup="filterRocchetto()" style="width:100%;padding:10px;border-radius:8px;border:none;margin-bottom:15px;">
+	<input type="text" id="searchRocchetto" placeholder="Cerca codice..." onkeyup="filterRocchetto()" style="width:100%;padding:10px;border-radius:8px;border:none;margin-bottom:15px;font-size:14px;">
     <div class="grid rocchetti seeds" id="rocchettoGrid"></div>
 
   </div>
@@ -207,7 +405,7 @@ header {
     
 	<h2 data-i18n="stepSeme" style="text-align:center;">Seleziona il Seme</h2>
 	
-    <input type="text" id="searchSeed" placeholder="Cerca seme..." onkeyup="filterSeeds()" style="width:100%;padding:10px;border-radius:8px;border:none;margin-bottom:15px;">
+    <input type="text" id="searchSeed" placeholder="Cerca seme..." onkeyup="filterSeeds()" style="width:100%;padding:10px;border-radius:8px;border:none;margin-bottom:15px;font-size:14px;">
     <div class="grid seeds" id="seedGrid">
       <div class="card" data-seed="avena" onclick="selectItem('seed','avena', this)"><img src="img/avena.svg" alt="Avena"><p>Avena</p></div>
       <div class="card" data-seed="colza" onclick="selectItem('seed','colza', this)"><img src="img/colza.svg" alt="Colza"><p>Colza</p></div>
@@ -599,7 +797,7 @@ function nextStep(stepId){
 function prevStep(stepId){ nextStep(stepId); }
 
 function goHome() {
-  // Nasconde tutti gli step e mostra la home
+  // --- Nasconde tutti gli step e mostra la home ---
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   const homeEl = document.getElementById('home');
   if (homeEl) homeEl.classList.add('active');
@@ -608,94 +806,69 @@ function goHome() {
   // --- Reset stato JS ---
   selectedMachine = null;
   selectedSeed = null;
+  window._selectedSeedId = null;
+  window.seedsFiltered = [];
+  window.lastSeedQuery = '';
 
-  // Rimuovi classi .selected da qualunque elemento
-  document.querySelectorAll('.card.selected, .seed-card.selected, .selected, button.selected')
-    .forEach(el => el.classList.remove('selected'));
+  // --- Rimuove classi residue che influenzano visualizzazione/selezione ---
+  const residueClasses = ['selected', 'has-value', 'seed-selected', 'with-icon', 'show-seed'];
+  residueClasses.forEach(cls => {
+    document.querySelectorAll(`.${cls}`).forEach(el => el.classList.remove(cls));
+  });
 
-  // Rimuovi classi che potrebbero far comparire pseudo-elementi o icone
-  document.querySelectorAll('.has-value, .seed-selected, .with-icon, .show-seed')
-    .forEach(el => {
-      el.classList.remove('has-value', 'seed-selected', 'with-icon', 'show-seed');
-    });
+  // --- Rimuove selezioni residue dalle card specifiche ---
+  document.querySelectorAll('#seedGrid .card.selected, #seedsByRocchetto .card.selected').forEach(card => {
+    card.classList.remove('selected');
+    card.removeAttribute('data-selected');
+    card.removeAttribute('aria-selected');
+  });
 
-  // Reset pulsanti abilitati
+  // --- Nasconde eventuali preview di semi o icone residue ---
+  const seedPreviews = document.querySelectorAll('.seed-icon-preview, .selected-seed, .seed-preview');
+  seedPreviews.forEach(el => {
+    if (el.tagName === 'IMG') el.src = '';
+    el.style.display = 'none';
+  });
+
+  // --- Reset pulsanti ---
   const btnStep1 = document.getElementById('btnStep1');
   const btnStep2 = document.getElementById('btnStep2');
   if (btnStep1) btnStep1.disabled = true;
   if (btnStep2) btnStep2.disabled = true;
 
-  // --- Reset input di ricerca (svuota e fornisce eventi) ---
-  const searchSeed = document.getElementById('searchSeed') || document.getElementById('seedSearch') || document.querySelector('input[type="search"], input[data-role="search-seed"]');
-  const searchRocchetto = document.getElementById('searchRocchetto') || document.querySelector('input[data-role="search-rocchetto"]');
+  // --- Reset input di ricerca ---
+  const searchSeed = document.getElementById('searchSeed');
+  const searchRocchetto = document.getElementById('searchRocchetto');
 
-  if (searchSeed) {
-    searchSeed.value = '';
-    // rimuovi anche l'attributo value e placeholder se impostato in altro modo
-    searchSeed.removeAttribute('value');
-    // Triggera gli event handler legati all'input
-    searchSeed.dispatchEvent(new Event('input', { bubbles: true }));
-    searchSeed.dispatchEvent(new Event('change', { bubbles: true }));
-    searchSeed.blur();
-  }
-  if (searchRocchetto) {
-    searchRocchetto.value = '';
-    searchRocchetto.removeAttribute('value');
-    searchRocchetto.dispatchEvent(new Event('input', { bubbles: true }));
-    searchRocchetto.dispatchEvent(new Event('change', { bubbles: true }));
-    searchRocchetto.blur();
-  }
-
-  // --- Svuota o nascondi eventuali preview/badge di seme ---
-  const previewSelectors = ['#selectedSeedPreview', '#seedPreview', '.selected-seed', '.seed-preview', '.seed-icon-preview'];
-  previewSelectors.forEach(sel => {
-    document.querySelectorAll(sel).forEach(node => {
-      // se è un'immagine nascondila, altrimenti svuota il contenuto
-      if (node.tagName === 'IMG') {
-        node.src = '';
-        node.style.display = 'none';
-      } else {
-        node.innerHTML = '';
-        node.style.display = 'none';
-      }
-    });
+  [searchSeed, searchRocchetto].forEach(input => {
+    if (!input) return;
+    input.value = '';
+    input.blur();
+    // Triggera l'evento input e change per aggiornare la griglia
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
   });
 
-  // --- Pulisci container e eventuali cache interne ---
+  // --- Pulisce i container delle griglie ---
   const seedsContainer = document.getElementById('seedsByRocchetto');
-  if (seedsContainer) seedsContainer.innerHTML = ''; // puliamo prima
+  if (seedsContainer) seedsContainer.innerHTML = '';
   const rocchettoGrid = document.getElementById('rocchettoGrid');
   if (rocchettoGrid) rocchettoGrid.innerHTML = '';
 
-  // reset di variabili globali che talvolta usano il filtro
-  try {
-    if (window.lastSeedQuery !== undefined) window.lastSeedQuery = '';
-    if (window.seedsFiltered !== undefined) window.seedsFiltered = null;
-    if (window._selectedSeedId !== undefined) window._selectedSeedId = null;
-  } catch (e) { /* no-op */ }
-
-  // rimuovi eventuali chiavi in localStorage/sessionStorage
-  try {
-    localStorage.removeItem('selectedSeed');
-    localStorage.removeItem('seedSearch');
-    sessionStorage.removeItem('selectedSeed');
-  } catch (e) { /* no-op */ }
-
-  // Forza un repaint e poi ricostruisci la griglia (a freddo)
+  // --- Forza repaint e ricostruzione della griglia ---
   requestAnimationFrame(() => {
-    // Se updateSeedGrid legge il valore del campo di ricerca, ora troverà stringa vuota
-    if (typeof updateSeedGrid === 'function') updateSeedGrid();
-    // se usi loadRocchettoGrid per popolare inizialmente i semi, richiamala
+    if (typeof updateSeedGrid === 'function') updateSeedGrid(true);
     if (typeof loadRocchettoGrid === 'function') loadRocchettoGrid();
-    // rimuovi eventuali residui di selezione visiva
-    document.querySelectorAll('.card[aria-selected="true"]').forEach(el => {
-      el.removeAttribute('aria-selected');
-    });
   });
 
-  // Scorri in cima (opzionale)
-  window.scrollTo(0, 0);
+  // --- Scrolla in cima ---
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+
+
+
+
 
 /* mostra rocchetti consigliati */
 function showRocchetto(){
@@ -777,40 +950,48 @@ function renderSeedsByRocchetto(){
 }
 
 /* aggiorna il contenuto delle card semi automaticamente */
-function updateSeedGrid(){
-  // aggiorna i nomi dei semi nelle card (#seedGrid .card)
-  document.querySelectorAll('#seedGrid .card').forEach(card=>{
-    const onclickAttr = card.getAttribute('onclick') || '';
-    // estrai tutte le stringhe tra apici: ["seed","avena"] -> vogliamo l'indice 1 (secondo argomento)
-    const matches = [...onclickAttr.matchAll(/'([^']+)'/g)].map(m => m[1]);
-    let id = null;
-    if(matches.length >= 2) {
-      id = matches[1]; // secondo argomento di selectItem('seed','<id>', this)
-    } else if (card.dataset && card.dataset.seed) {
-      id = card.dataset.seed; // fallback su data-seed se presente
-    } else if (matches.length === 1) {
-      id = matches[0]; // fallback minimale
-    }
-    if(!id) return;
+function updateSeedGrid(force = false) {
+  if (!force && window.currentStep !== 'step2') return;
 
-    // prendi la traduzione (se esiste)
-    const name = translations[currentLang] && translations[currentLang].seeds && translations[currentLang].seeds[id];
-    if(name) {
-      const p = card.querySelector('p');
-      if(p) p.textContent = name;
-    }
+  const searchInput = document.getElementById('searchSeed');
+  const filter = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+  const seedGrid = document.getElementById('seedGrid');
+  if (!seedGrid) return;
+
+  // svuota la griglia prima di ricrearla
+  seedGrid.innerHTML = '';
+
+  // scorri tutti i semi definiti in translations
+  const allSeeds = Object.keys(translations[currentLang].seeds || {});
+  allSeeds.forEach(seedId => {
+    const name = translations[currentLang].seeds[seedId];
+    if (filter && !name.toLowerCase().includes(filter)) return; // filtra
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.seed = seedId;
+    card.setAttribute('onclick', `selectItem('seed','${seedId}',this)`);
+
+    const img = document.createElement('img');
+    img.src = `img/${seedId}.svg`; // modifica percorso immagini se necessario
+    img.alt = name;
+
+    const p = document.createElement('p');
+    p.textContent = name;
+
+    card.appendChild(img);
+    card.appendChild(p);
+
+    seedGrid.appendChild(card);
   });
 
-  // aggiorna i placeholder delle ricerche se definite nelle traduzioni
-  const phSeed = document.getElementById('searchSeed');
-  if(phSeed && translations[currentLang] && translations[currentLang].placeholderSeme) {
-    phSeed.placeholder = translations[currentLang].placeholderSeme;
-  }
-  const phCode = document.getElementById('searchRocchetto');
-  if(phCode && translations[currentLang] && translations[currentLang].placeholderCodice) {
-    phCode.placeholder = translations[currentLang].placeholderCodice;
+  // aggiorna il placeholder
+  if (searchInput && translations[currentLang] && translations[currentLang].placeholderSeme) {
+    searchInput.placeholder = translations[currentLang].placeholderSeme;
   }
 }
+
 
 /* griglia rocchetti */
 function loadRocchettoGrid(){
