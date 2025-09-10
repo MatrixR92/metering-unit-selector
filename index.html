@@ -66,7 +66,7 @@ header {
     .seeds { grid-template-columns: repeat(auto-fill, 110px); justify-content: center; gap: 10px; }
     .seeds .card { width: 110px; height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; }
     .seeds .card img { max-width: 50px; margin-bottom: 15px; }
-    .seeds .card p { font-size: 13px; margin: 0; text-align: center; word-break:break-word; line-height: 1.4;}
+    .seeds .card p { font-size: 15px; margin: 0; text-align: center; word-break:break-word; line-height: 1.4;}
 
     .card { background: #3a3a3a; border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; }
     .card:hover { background: #4a4a4a; }
@@ -759,7 +759,7 @@ function loadRocchettoGrid(){
   Object.entries(rocchetti).forEach(([id,r])=>{
     grid.innerHTML += `<div class="card" onclick="selectRocchetto('${id}')">
       <img src="${r.img}" alt="${r.codice}" style="width:80px;max-width:none;height:auto;">
-      <p style="font-size:1.1rem;margin-top:5px;">${r.codice}</p>
+      <p style="font-size:15px;margin-top:5px;">${r.codice}</p>
     </div>`;
   });
 }
@@ -830,4 +830,5 @@ window.addEventListener('DOMContentLoaded', updateSeedGrid);
 </script>
 </body>
 </html>
+
 
