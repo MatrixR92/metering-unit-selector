@@ -1,6 +1,6 @@
 {
-  "name": "Metering Unit Selector",
-  "short_name": "Alpego",
+  "name": "Alpego Metering Unit Selector",
+  "short_name": "Metering Unit",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -21,4 +21,3 @@
   }
 ]
 }
-
